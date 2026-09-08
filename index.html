@@ -6,959 +6,2093 @@
 <title>MYMSOUND</title>
 
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+ --theme:#8b5cf6;
+ --bg:#080808;
+ --card:#111;
+ --text:#fff;
+ --muted:#999;
 }
 
 body{
-    font-family:Arial, sans-serif;
-    background:#080808;
-    color:white;
-    min-height:100vh;
+ font-family:Arial,sans-serif;
+ background:var(--bg);
+ color:var(--text);
+ min-height:100vh;
 }
 
-button,input,select{
-    font:inherit;
+button,input,textarea,select{font:inherit}
+
+button{cursor:pointer}
+
+.hidden{display:none!important}
+
+/* =========================
+   GİRİŞ
+========================= */
+
+.auth-page{
+ min-height:100vh;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ padding:20px;
+ background:
+ radial-gradient(circle at center,#321467 0,#12091d 35%,#080808 75%);
 }
 
-button{
-    cursor:pointer;
-}
-
-.navbar{
-    height:70px;
-    padding:0 30px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    background:#0e0e0e;
-    border-bottom:1px solid #242424;
-    position:sticky;
-    top:0;
-    z-index:10;
+.auth-box{
+ width:min(430px,100%);
+ background:#111;
+ border:1px solid #292929;
+ border-radius:24px;
+ padding:30px;
+ box-shadow:0 20px 80px #000;
 }
 
 .logo{
-    font-size:25px;
-    font-weight:900;
-    color:#9b5cff;
-}
-
-.nav-buttons{
-    display:flex;
-    gap:10px;
-}
-
-.nav-buttons button,
-.primary{
-    border:0;
-    border-radius:10px;
-    padding:11px 18px;
-    background:#8b5cf6;
-    color:white;
-    font-weight:bold;
-}
-
-.nav-buttons button:hover,
-.primary:hover{
-    background:#a77aff;
-}
-
-.secondary{
-    background:#1b1b1b !important;
-    border:1px solid #333 !important;
-}
-
-.container{
-    width:min(1100px,92%);
-    margin:40px auto;
-}
-
-.hero{
-    min-height:430px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    background:
-      radial-gradient(circle at center,#321467 0,#150b24 35%,#080808 70%);
-    border-radius:25px;
-    padding:50px 20px;
-}
-
-.hero h1{
-    font-size:clamp(45px,8vw,90px);
-    margin-bottom:15px;
-}
-
-.hero h1 span{
-    color:#9b5cff;
-}
-
-.hero p{
-    color:#bbb;
-    font-size:18px;
-    margin-bottom:30px;
-}
-
-.cards{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:18px;
-    margin-top:25px;
-}
-
-.card{
-    background:#111;
-    border:1px solid #242424;
-    border-radius:18px;
-    padding:25px;
-}
-
-.card h2{
-    color:#a875ff;
-    margin-bottom:10px;
-}
-
-.card p{
-    color:#999;
-    line-height:1.5;
-}
-
-.section{
-    margin-top:35px;
-}
-
-.section h2{
-    margin-bottom:18px;
-}
-
-.music{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    background:#111;
-    border:1px solid #242424;
-    padding:16px;
-    border-radius:15px;
-    margin-bottom:10px;
-}
-
-.music-cover{
-    width:55px;
-    height:55px;
-    border-radius:10px;
-    background:linear-gradient(135deg,#8b5cf6,#24103d);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:23px;
-}
-
-.music-info{
-    flex:1;
-}
-
-.music-info b{
-    display:block;
-    margin-bottom:5px;
-}
-
-.music-info span{
-    color:#888;
-    font-size:14px;
-}
-
-.like{
-    border:0;
-    background:#1d1d1d;
-    color:white;
-    padding:9px 13px;
-    border-radius:10px;
-}
-
-.like.active{
-    color:#ff4f91;
-}
-
-.modal{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.78);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    z-index:100;
-    padding:20px;
-}
-
-.modal.show{
-    display:flex;
-}
-
-.modal-box{
-    width:min(430px,100%);
-    background:#111;
-    border:1px solid #333;
-    border-radius:20px;
-    padding:28px;
-    box-shadow:0 20px 70px rgba(0,0,0,.6);
-}
-
-.modal-box h2{
-    margin-bottom:20px;
+ color:var(--theme);
+ font-size:28px;
+ font-weight:900;
+ text-align:center;
+ margin-bottom:25px;
 }
 
 .tabs{
-    display:flex;
-    gap:8px;
-    margin-bottom:20px;
+ display:flex;
+ gap:8px;
+ margin-bottom:20px;
 }
 
 .tabs button{
-    flex:1;
-    padding:11px;
-    border:0;
-    border-radius:10px;
-    background:#1c1c1c;
-    color:#aaa;
+ flex:1;
+ padding:12px;
+ border:0;
+ border-radius:10px;
+ background:#1d1d1d;
+ color:#aaa;
 }
 
 .tabs button.active{
-    background:#8b5cf6;
-    color:white;
+ background:var(--theme);
+ color:#fff;
 }
 
-.form{
-    display:none;
+.form{display:none}
+.form.active{display:block}
+
+.input,.textarea,.select{
+ width:100%;
+ padding:13px;
+ margin-bottom:12px;
+ border-radius:10px;
+ border:1px solid #303030;
+ background:#090909;
+ color:white;
+ outline:none;
 }
 
-.form.active{
-    display:block;
+.textarea{
+ resize:vertical;
+ min-height:100px;
 }
 
-.input{
-    width:100%;
-    background:#090909;
-    border:1px solid #303030;
-    color:white;
-    padding:13px;
-    border-radius:10px;
-    margin-bottom:12px;
-    outline:none;
+.input:focus,.textarea:focus,.select:focus{
+ border-color:var(--theme);
 }
 
-.input:focus{
-    border-color:#8b5cf6;
-}
-
-.form button{
-    width:100%;
-    margin-top:5px;
-}
-
-.close{
-    float:right;
-    background:none;
-    border:0;
-    color:#aaa;
-    font-size:24px;
+.primary{
+ width:100%;
+ border:0;
+ border-radius:10px;
+ padding:13px;
+ background:var(--theme);
+ color:#fff;
+ font-weight:bold;
 }
 
 .message{
-    min-height:22px;
-    margin:10px 0;
-    color:#ff6b9d;
-    font-size:14px;
+ color:#ff5d91;
+ min-height:20px;
+ font-size:14px;
+ margin-bottom:8px;
 }
 
-.profile{
-    display:none;
-    background:#111;
-    border:1px solid #282828;
-    border-radius:20px;
-    padding:30px;
-    margin-top:30px;
+/* =========================
+   UYGULAMA
+========================= */
+
+.app{
+ display:none;
+ min-height:100vh;
+ padding-bottom:75px;
 }
 
-.profile.show{
-    display:block;
+.app.active{display:block}
+
+.topbar{
+ height:65px;
+ background:#0d0d0d;
+ border-bottom:1px solid #222;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ padding:0 18px;
+ position:sticky;
+ top:0;
+ z-index:20;
+}
+
+.top-logo{
+ color:var(--theme);
+ font-size:22px;
+ font-weight:900;
+}
+
+.more{
+ background:none;
+ border:0;
+ color:white;
+ font-size:28px;
+ padding:5px 10px;
+}
+
+.page{
+ width:min(800px,94%);
+ margin:20px auto;
+}
+
+.section-title{
+ margin:25px 0 15px;
+ font-size:22px;
+}
+
+.create-box{
+ background:var(--card);
+ border:1px solid #242424;
+ border-radius:18px;
+ padding:16px;
+ margin-bottom:20px;
+}
+
+.create-row{
+ display:flex;
+ gap:10px;
+}
+
+.create-row input{
+ flex:1;
+ margin:0;
+}
+
+.small-btn{
+ border:0;
+ background:var(--theme);
+ color:white;
+ border-radius:10px;
+ padding:10px 15px;
+}
+
+.feed{
+ display:flex;
+ flex-direction:column;
+ gap:14px;
+}
+
+.post{
+ background:var(--card);
+ border:1px solid #242424;
+ border-radius:18px;
+ padding:17px;
+}
+
+.post-head{
+ display:flex;
+ align-items:center;
+ gap:10px;
+ margin-bottom:12px;
 }
 
 .avatar{
-    width:80px;
-    height:80px;
-    border-radius:50%;
-    background:#8b5cf6;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:30px;
-    font-weight:bold;
-    margin-bottom:15px;
+ width:42px;
+ height:42px;
+ border-radius:50%;
+ background:var(--theme);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-weight:bold;
 }
 
-#userStatus{
-    color:#aaa;
-    font-size:14px;
+.post-user{
+ font-weight:bold;
 }
 
-footer{
-    margin-top:60px;
-    padding:30px;
-    text-align:center;
-    color:#666;
-    border-top:1px solid #1c1c1c;
+.post-role{
+ color:#777;
+ font-size:12px;
 }
 
-@media(max-width:750px){
-    .navbar{
-        padding:0 15px;
-    }
+.post-content{
+ color:#ddd;
+ line-height:1.5;
+ margin-bottom:14px;
+ white-space:pre-wrap;
+}
 
-    .cards{
-        grid-template-columns:1fr;
-    }
+.post-actions{
+ display:flex;
+ gap:8px;
+ border-top:1px solid #222;
+ padding-top:12px;
+}
 
-    .logo{
-        font-size:20px;
-    }
+.action{
+ border:0;
+ background:#1a1a1a;
+ color:#ccc;
+ border-radius:9px;
+ padding:8px 12px;
+}
 
-    .nav-buttons button{
-        padding:9px 11px;
-        font-size:13px;
-    }
+.action.liked{
+ color:#ff4d8d;
+}
 
-    .hero{
-        min-height:350px;
-    }
+/* =========================
+   REELS
+========================= */
+
+.reels{
+ display:flex;
+ flex-direction:column;
+ gap:20px;
+}
+
+.reel{
+ height:500px;
+ border-radius:20px;
+ overflow:hidden;
+ background:#151515;
+ border:1px solid #292929;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ position:relative;
+}
+
+.reel-placeholder{
+ font-size:70px;
+}
+
+.reel-info{
+ position:absolute;
+ bottom:20px;
+ left:20px;
+ right:20px;
+ background:rgba(0,0,0,.55);
+ padding:14px;
+ border-radius:14px;
+}
+
+/* =========================
+   PROFİL
+========================= */
+
+.profile-page{
+ display:none;
+}
+
+.profile-page.active{
+ display:block;
+}
+
+.profile-header{
+ background:#111;
+ border:1px solid #242424;
+ border-radius:20px;
+ padding:25px;
+}
+
+.profile-top{
+ display:flex;
+ gap:20px;
+ align-items:center;
+}
+
+.profile-avatar{
+ width:95px;
+ height:95px;
+ border-radius:50%;
+ background:var(--theme);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:35px;
+ font-weight:bold;
+}
+
+.profile-info h2{
+ margin-bottom:5px;
+}
+
+.profile-info p{
+ color:#888;
+}
+
+.profile-stats{
+ display:flex;
+ gap:30px;
+ margin-top:20px;
+}
+
+.profile-stat b{
+ display:block;
+ font-size:19px;
+}
+
+.profile-stat span{
+ color:#888;
+ font-size:13px;
+}
+
+.profile-buttons{
+ display:flex;
+ gap:10px;
+ margin-top:20px;
+}
+
+.profile-buttons button{
+ flex:1;
+ border:0;
+ border-radius:10px;
+ padding:11px;
+ background:#202020;
+ color:white;
+}
+
+.profile-buttons button:first-child{
+ background:var(--theme);
+}
+
+.profile-tabs{
+ display:flex;
+ margin-top:20px;
+ border-bottom:1px solid #292929;
+}
+
+.profile-tabs button{
+ flex:1;
+ padding:14px;
+ background:none;
+ color:#aaa;
+ border:0;
+}
+
+.profile-tabs button.active{
+ color:white;
+ border-bottom:2px solid var(--theme);
+}
+
+/* =========================
+   SOHBET
+========================= */
+
+.chat-list{
+ display:flex;
+ flex-direction:column;
+ gap:10px;
+}
+
+.chat-user{
+ background:#111;
+ border:1px solid #252525;
+ padding:15px;
+ border-radius:14px;
+ display:flex;
+ align-items:center;
+ gap:12px;
+}
+
+.chat-user button{
+ margin-left:auto;
+ background:var(--theme);
+ color:white;
+ border:0;
+ padding:8px 12px;
+ border-radius:9px;
+}
+
+/* =========================
+   AYARLAR
+========================= */
+
+.settings{
+ display:none;
+}
+
+.settings.active{
+ display:block;
+}
+
+.setting-card{
+ background:#111;
+ border:1px solid #252525;
+ border-radius:16px;
+ padding:18px;
+ margin-bottom:12px;
+}
+
+.setting-card h3{
+ margin-bottom:6px;
+}
+
+.setting-card p{
+ color:#888;
+ font-size:14px;
+ margin-bottom:12px;
+}
+
+.setting-button{
+ width:100%;
+ text-align:left;
+ padding:14px;
+ border:0;
+ border-radius:10px;
+ background:#1c1c1c;
+ color:white;
+ margin-top:7px;
+}
+
+.colors{
+ display:flex;
+ flex-wrap:wrap;
+ gap:10px;
+ margin-top:10px;
+}
+
+.color{
+ width:38px;
+ height:38px;
+ border-radius:50%;
+ border:2px solid #555;
+}
+
+.color[data-color="#3b82f6"]{background:#3b82f6}
+.color[data-color="#eab308"]{background:#eab308}
+.color[data-color="#8b5cf6"]{background:#8b5cf6}
+.color[data-color="#111111"]{background:#111}
+.color[data-color="#ffffff"]{background:#fff}
+.color[data-color="#ec4899"]{background:#ec4899}
+.color[data-color="#ef4444"]{background:#ef4444}
+.color[data-color="#22c55e"]{background:#22c55e}
+
+/* =========================
+   ALT MENÜ
+========================= */
+
+.bottom-nav{
+ position:fixed;
+ bottom:0;
+ left:0;
+ right:0;
+ height:68px;
+ background:#0d0d0d;
+ border-top:1px solid #252525;
+ display:flex;
+ z-index:50;
+}
+
+.bottom-nav button{
+ flex:1;
+ background:none;
+ border:0;
+ color:#777;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ gap:4px;
+}
+
+.bottom-nav button.active{
+ color:var(--theme);
+}
+
+.bottom-nav span{
+ font-size:21px;
+}
+
+.bottom-nav small{
+ font-size:11px;
+}
+
+/* =========================
+   ÜÇ NOKTA MENÜ
+========================= */
+
+.menu{
+ position:fixed;
+ top:60px;
+ right:15px;
+ width:210px;
+ background:#151515;
+ border:1px solid #333;
+ border-radius:15px;
+ padding:8px;
+ z-index:100;
+ display:none;
+ box-shadow:0 15px 40px #000;
+}
+
+.menu.active{
+ display:block;
+}
+
+.menu button{
+ width:100%;
+ text-align:left;
+ padding:13px;
+ border:0;
+ border-radius:9px;
+ background:none;
+ color:white;
+}
+
+.menu button:hover{
+ background:#252525;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+ position:fixed;
+ inset:0;
+ background:rgba(0,0,0,.8);
+ display:none;
+ align-items:center;
+ justify-content:center;
+ padding:20px;
+ z-index:200;
+}
+
+.modal.active{
+ display:flex;
+}
+
+.modal-box{
+ width:min(450px,100%);
+ background:#111;
+ border:1px solid #333;
+ border-radius:20px;
+ padding:25px;
+}
+
+.close{
+ float:right;
+ border:0;
+ background:none;
+ color:#aaa;
+ font-size:25px;
+}
+
+@media(max-width:600px){
+
+ .profile-top{
+  align-items:flex-start;
+ }
+
+ .profile-avatar{
+  width:75px;
+  height:75px;
+  font-size:28px;
+ }
+
+ .reel{
+  height:450px;
+ }
+
 }
 </style>
 </head>
 
 <body>
 
-<header class="navbar">
-    <div class="logo">MYMSOUND</div>
+<!-- =====================================================
+     1. GİRİŞ / KAYIT
+===================================================== -->
 
-    <div class="nav-buttons">
-        <button class="secondary" onclick="scrollToMusic()">Müzikler</button>
-        <button id="accountBtn" onclick="openAuth()">Giriş Yap</button>
-    </div>
+<section class="auth-page" id="authPage">
+
+<div class="auth-box">
+
+<div class="logo">MYMSOUND</div>
+
+<div class="tabs">
+<button id="registerTab" class="active"
+onclick="showAuth('register')">Kayıt Ol</button>
+
+<button id="loginTab"
+onclick="showAuth('login')">Giriş Yap</button>
+</div>
+
+
+<div id="registerForm" class="form active">
+
+<input id="regName"
+class="input"
+placeholder="Mahlas / Kullanıcı adı">
+
+<select id="regRole" class="select">
+<option>REPÇİ</option>
+<option>DJ</option>
+<option>PROD</option>
+</select>
+
+<input id="regEmail"
+class="input"
+type="email"
+placeholder="E-posta">
+
+<input id="regPassword"
+class="input"
+type="password"
+placeholder="Şifre">
+
+<input id="regPassword2"
+class="input"
+type="password"
+placeholder="Şifre tekrar">
+
+<div id="regMessage" class="message"></div>
+
+<button class="primary" onclick="register()">
+Hesap Oluştur
+</button>
+
+</div>
+
+
+<div id="loginForm" class="form">
+
+<input id="loginEmail"
+class="input"
+type="email"
+placeholder="E-posta">
+
+<input id="loginPassword"
+class="input"
+type="password"
+placeholder="Şifre">
+
+<div id="loginMessage" class="message"></div>
+
+<button class="primary" onclick="login()">
+Giriş Yap
+</button>
+
+</div>
+
+</div>
+</section>
+
+
+<!-- =====================================================
+     2. UYGULAMA
+===================================================== -->
+
+<section class="app" id="app">
+
+<header class="topbar">
+
+<div class="top-logo">MYMSOUND</div>
+
+<button class="more" onclick="toggleMenu()">⋮</button>
+
 </header>
 
 
-<main class="container">
+<!-- ÜÇ NOKTA -->
 
-    <section class="hero">
-        <div>
-            <h1>MYM<span>SOUND</span></h1>
+<div class="menu" id="moreMenu">
 
-            <p>
-                Müzik üreticileri, rapçiler, DJ'ler ve prodüktörler için.
-            </p>
+<button onclick="openSettings()">
+⚙️ Ayarlar
+</button>
 
-            <button class="primary" onclick="openAuth()">
-                Hesap Oluştur
-            </button>
-        </div>
-    </section>
+<button onclick="showPage('profile')">
+👤 Profil
+</button>
 
+<button onclick="logout()">
+🚪 Çıkış Yap
+</button>
 
-    <section class="cards">
+</div>
 
-        <div class="card">
-            <h2>🎤 Rapçiler</h2>
-            <p>
-                Mahlasınla profil oluştur ve müziklerini paylaş.
-            </p>
-        </div>
 
-        <div class="card">
-            <h2>🎧 DJ'ler</h2>
-            <p>
-                Kendi içeriklerini ve çalışmalarını topluluğa göster.
-            </p>
-        </div>
+<!-- ================= ANA SAYFA ================= -->
 
-        <div class="card">
-            <h2>🎹 Prodüktörler</h2>
-            <p>
-                Beat ve prodüksiyon çalışmalarını sergile.
-            </p>
-        </div>
+<div id="homePage" class="page">
 
-    </section>
+<div class="create-box">
 
+<div class="create-row">
 
-    <section class="section" id="musicSection">
+<input
+id="newText"
+class="input"
+placeholder="Ne düşünüyorsun?"
+>
 
-        <h2>🔥 Örnek Müzikler</h2>
+<button class="small-btn"
+onclick="createPost()">
+Paylaş
+</button>
 
-        <div class="music">
-            <div class="music-cover">🎵</div>
+</div>
 
-            <div class="music-info">
-                <b>Gece</b>
-                <span>MYMSOUND Artist</span>
-            </div>
+</div>
 
-            <button class="like" onclick="likeSong(this)">
-                ♡ 0
-            </button>
-        </div>
 
+<h2 class="section-title">Ana Sayfa</h2>
 
-        <div class="music">
-            <div class="music-cover">🎧</div>
+<div id="feed" class="feed"></div>
 
-            <div class="music-info">
-                <b>Sokaklar</b>
-                <span>MYMSOUND Artist</span>
-            </div>
+</div>
 
-            <button class="like" onclick="likeSong(this)">
-                ♡ 0
-            </button>
-        </div>
 
+<!-- ================= REELS ================= -->
 
-        <div class="music">
-            <div class="music-cover">🔥</div>
+<div id="reelsPage" class="page hidden">
 
-            <div class="music-info">
-                <b>Ters Köşe</b>
-                <span>MYMSOUND Artist</span>
-            </div>
+<h2 class="section-title">🎬 Reels</h2>
 
-            <button class="like" onclick="likeSong(this)">
-                ♡ 0
-            </button>
-        </div>
+<div id="reels" class="reels"></div>
 
-    </section>
+</div>
 
 
-    <section class="profile" id="profile">
+<!-- ================= SOHBETLER ================= -->
 
-        <div class="avatar" id="avatar">M</div>
+<div id="chatPage" class="page hidden">
 
-        <h2 id="profileName">Kullanıcı</h2>
+<h2 class="section-title">💬 Sohbetler</h2>
 
-        <p id="userStatus"></p>
+<div class="chat-list">
 
-        <br>
+<div class="chat-user">
+<div class="avatar">M</div>
+<div>
+<b>MYMSOUND Kullanıcısı</b>
+<p style="color:#777">Sohbete başla</p>
+</div>
+<button onclick="startChat()">
+Mesaj
+</button>
+</div>
 
-        <button class="primary" onclick="logout()">
-            Çıkış Yap
-        </button>
+</div>
 
-    </section>
+</div>
 
-</main>
 
+<!-- ================= PROFİL ================= -->
 
-<footer>
-    © 2026 MYMSOUND — Music Community
-</footer>
+<div id="profilePage" class="page profile-page">
 
+<div class="profile-header">
 
-<!-- GİRİŞ / KAYIT MODALI -->
+<div class="profile-top">
 
-<div class="modal" id="authModal">
+<div class="profile-avatar" id="profileAvatar">
+M
+</div>
 
-    <div class="modal-box">
+<div class="profile-info">
 
-        <button class="close" onclick="closeAuth()">×</button>
+<h2 id="profileName">Kullanıcı</h2>
 
-        <h2>MYMSOUND</h2>
+<p id="profileRole">REPÇİ</p>
 
-        <div class="tabs">
+</div>
 
-            <button
-                id="registerTab"
-                class="active"
-                onclick="showForm('register')">
-                Kayıt Ol
-            </button>
+</div>
 
-            <button
-                id="loginTab"
-                onclick="showForm('login')">
-                Giriş Yap
-            </button>
 
-        </div>
+<div class="profile-stats">
 
+<div class="profile-stat">
+<b id="postCount">0</b>
+<span>Gönderi</span>
+</div>
 
-        <!-- KAYIT -->
+<div class="profile-stat">
+<b>0</b>
+<span>Takipçi</span>
+</div>
 
-        <div class="form active" id="registerForm">
+<div class="profile-stat">
+<b>0</b>
+<span>Takip</span>
+</div>
 
-            <input
-                class="input"
-                id="registerName"
-                type="text"
-                placeholder="Mahlas / Kullanıcı adı"
-                maxlength="30">
+</div>
 
-            <select class="input" id="registerRole">
-                <option value="REPÇİ">REPÇİ</option>
-                <option value="DJ">DJ</option>
-                <option value="PROD">PROD</option>
-            </select>
 
-            <input
-                class="input"
-                id="registerEmail"
-                type="email"
-                placeholder="E-posta">
+<div class="profile-buttons">
 
-            <input
-                class="input"
-                id="registerPassword"
-                type="password"
-                placeholder="Şifre">
+<button onclick="editProfile()">
+Profili Düzenle
+</button>
 
-            <input
-                class="input"
-                id="registerPassword2"
-                type="password"
-                placeholder="Şifre tekrar">
+<button onclick="openSettings()">
+⚙️ Ayarlar
+</button>
 
-            <div class="message" id="registerMessage"></div>
+</div>
 
-            <button class="primary" onclick="register()">
-                Hesap Oluştur
-            </button>
+</div>
 
-        </div>
 
+<h2 class="section-title">Paylaşımlarım</h2>
 
-        <!-- GİRİŞ -->
+<div id="myPosts" class="feed"></div>
 
-        <div class="form" id="loginForm">
+</div>
 
-            <input
-                class="input"
-                id="loginEmail"
-                type="email"
-                placeholder="E-posta">
 
-            <input
-                class="input"
-                id="loginPassword"
-                type="password"
-                placeholder="Şifre">
+<!-- ================= AYARLAR ================= -->
 
-            <div class="message" id="loginMessage"></div>
+<div id="settingsPage" class="page settings">
 
-            <button class="primary" onclick="login()">
-                Giriş Yap
-            </button>
+<h2 class="section-title">⚙️ Ayarlar</h2>
 
-        </div>
 
-    </div>
+<div class="setting-card">
+
+<h3>📊 Hareketlerim</h3>
+
+<p>
+Hesabındaki hareketleri görüntüle.
+</p>
+
+<button class="setting-button"
+onclick="showActivity()">
+Hareketlerimi Gör
+</button>
+
+</div>
+
+
+<div class="setting-card">
+
+<h3>🗄️ Arşiv</h3>
+
+<p>
+Sildiğin içerikler burada tutulur.
+</p>
+
+<button class="setting-button"
+onclick="showArchive()">
+Arşivimi Gör
+</button>
+
+</div>
+
+
+<div class="setting-card">
+
+<h3>👤 Profil Ayarları</h3>
+
+<button class="setting-button"
+onclick="editProfile()">
+Profil Bilgilerini Düzenle
+</button>
+
+</div>
+
+
+<div class="setting-card">
+
+<h3>🎨 Ana Ekran Rengi</h3>
+
+<p>İstediğin temayı seç.</p>
+
+<div class="colors">
+
+<button class="color" data-color="#3b82f6"
+onclick="changeTheme(this.dataset.color)"></button>
+
+<button class="color" data-color="#eab308"
+onclick="changeTheme(this.dataset.color)"></button>
+
+<button class="color" data-color="#8b5cf6"
+onclick="changeTheme(this.dataset.color)"></button>
+
+<button class="color" data-color="#111111"
+onclick="changeTheme(this.dataset.color)"></button>
+
+<button class="color" data-color="#ffffff"
+onclick="changeTheme(this.dataset.color)"></button>
+
+<button class="color" data-color="#ec4899"
+onclick="changeTheme(this.dataset.color)"></button>
+
+<button class="color" data-color="#ef4444"
+onclick="changeTheme(this.dataset.color)"></button>
+
+<button class="color" data-color="#22c55e"
+onclick="changeTheme(this.dataset.color)"></button>
+
+</div>
+
+</div>
+
+
+<div class="setting-card">
+
+<h3>🚫 Engellenen kişiler</h3>
+
+<div id="blockedUsers">
+<p style="color:#777">Henüz engellenen kişi yok.</p>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= ALT MENÜ ================= -->
+
+<nav class="bottom-nav">
+
+<button id="homeBtn"
+class="active"
+onclick="showPage('home')">
+
+<span>🏠</span>
+<small>Ana Sayfa</small>
+
+</button>
+
+
+<button id="reelsBtn"
+onclick="showPage('reels')">
+
+<span>🎬</span>
+<small>Reels</small>
+
+</button>
+
+
+<button id="chatBtn"
+onclick="showPage('chat')">
+
+<span>💬</span>
+<small>Sohbetler</small>
+
+</button>
+
+
+<button id="profileBtn"
+onclick="showPage('profile')">
+
+<span>👤</span>
+<small>Profil</small>
+
+</button>
+
+</nav>
+
+</section>
+
+
+<!-- ================= PROFİL MODAL ================= -->
+
+<div class="modal" id="profileModal">
+
+<div class="modal-box">
+
+<button class="close"
+onclick="closeModal('profileModal')">×</button>
+
+<h2>Profil Ayarları</h2>
+
+<br>
+
+<input
+id="editName"
+class="input"
+placeholder="Mahlas">
+
+<textarea
+id="editBio"
+class="textarea"
+placeholder="Bio"></textarea>
+
+<button class="primary"
+onclick="saveProfile()">
+Kaydet
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ================= HAREKETLER MODAL ================= -->
+
+<div class="modal" id="activityModal">
+
+<div class="modal-box">
+
+<button class="close"
+onclick="closeModal('activityModal')">×</button>
+
+<h2>📊 Hareketlerim</h2>
+
+<br>
+
+<div id="activityContent"></div>
+
+</div>
+
+</div>
+
+
+<!-- ================= ARŞİV MODAL ================= -->
+
+<div class="modal" id="archiveModal">
+
+<div class="modal-box">
+
+<button class="close"
+onclick="closeModal('archiveModal')">×</button>
+
+<h2>🗄️ Arşiv</h2>
+
+<br>
+
+<div id="archiveContent"></div>
+
+</div>
 
 </div>
 
 
 <script>
 
-/*
-    MYMSOUND HESAP SİSTEMİ
+/* =====================================================
+   VERİLER
+===================================================== */
 
-    Bu sürüm Firebase kullanmaz.
-    Hesaplar bu tarayıcının localStorage alanında tutulur.
-*/
+let currentUser=null;
+
+let users=
+JSON.parse(localStorage.getItem("mym_users")||"[]");
+
+let posts=
+JSON.parse(localStorage.getItem("mym_posts")||"[]");
+
+let reels=
+JSON.parse(localStorage.getItem("mym_reels")||"[]");
+
+let archive=
+JSON.parse(localStorage.getItem("mym_archive")||"[]");
+
+let activity=
+JSON.parse(localStorage.getItem("mym_activity")||"[]");
 
 
-let currentUser = null;
+/* =====================================================
+   SAYFA BAŞLANGICI
+===================================================== */
 
+window.onload=function(){
 
-/* SAYFA AÇILDIĞINDA KULLANICIYI KONTROL ET */
+ const saved=
+ localStorage.getItem("mym_current_user");
 
-window.onload = function(){
+ if(saved){
 
-    const savedUser = localStorage.getItem("mym_current_user");
+  currentUser=JSON.parse(saved);
 
-    if(savedUser){
+  enterApp();
 
-        currentUser = JSON.parse(savedUser);
-
-        showLoggedUser();
-    }
+ }
 
 };
 
 
-/* KAYIT OL */
+/* =====================================================
+   KAYIT / GİRİŞ
+===================================================== */
+
+function showAuth(type){
+
+ document.getElementById("registerForm")
+ .classList.toggle("active",type==="register");
+
+ document.getElementById("loginForm")
+ .classList.toggle("active",type==="login");
+
+ document.getElementById("registerTab")
+ .classList.toggle("active",type==="register");
+
+ document.getElementById("loginTab")
+ .classList.toggle("active",type==="login");
+
+}
+
 
 function register(){
 
-    const name =
-        document.getElementById("registerName").value.trim();
+ const name=
+ document.getElementById("regName").value.trim();
 
-    const role =
-        document.getElementById("registerRole").value;
+ const role=
+ document.getElementById("regRole").value;
 
-    const email =
-        document.getElementById("registerEmail").value.trim();
+ const email=
+ document.getElementById("regEmail").value.trim();
 
-    const password =
-        document.getElementById("registerPassword").value;
+ const password=
+ document.getElementById("regPassword").value;
 
-    const password2 =
-        document.getElementById("registerPassword2").value;
+ const password2=
+ document.getElementById("regPassword2").value;
 
-    const message =
-        document.getElementById("registerMessage");
-
-
-    message.textContent = "";
+ const msg=
+ document.getElementById("regMessage");
 
 
-    if(!name || !email || !password){
-
-        message.textContent =
-            "Lütfen bütün alanları doldur.";
-
-        return;
-    }
+ msg.textContent="";
 
 
-    if(password.length < 6){
+ if(!name||!email||!password){
 
-        message.textContent =
-            "Şifre en az 6 karakter olmalı.";
+  msg.textContent="Bütün alanları doldur.";
 
-        return;
-    }
+  return;
 
-
-    if(password !== password2){
-
-        message.textContent =
-            "Şifreler aynı değil.";
-
-        return;
-    }
+ }
 
 
-    let users =
-        JSON.parse(localStorage.getItem("mym_users") || "[]");
+ if(password.length<6){
+
+  msg.textContent="Şifre en az 6 karakter olmalı.";
+
+  return;
+
+ }
 
 
-    const existing =
-        users.find(user => user.email === email);
+ if(password!==password2){
+
+  msg.textContent="Şifreler aynı değil.";
+
+  return;
+
+ }
 
 
-    if(existing){
+ if(users.some(u=>u.email===email)){
 
-        message.textContent =
-            "Bu e-posta zaten kayıtlı.";
+  msg.textContent="Bu e-posta zaten kayıtlı.";
 
-        return;
-    }
+  return;
 
-
-    const newUser = {
-
-        id: Date.now(),
-
-        name: name,
-
-        role: role,
-
-        email: email,
-
-        password: password,
-
-        createdAt: new Date().toISOString()
-
-    };
+ }
 
 
-    users.push(newUser);
+ const user={
+
+  id:Date.now(),
+
+  name,
+
+  role,
+
+  email,
+
+  password,
+
+  bio:"",
+
+  likedPosts:[],
+
+  likedReels:[],
+
+  likedSongs:[],
+
+  comments:[],
+
+  writtenTexts:[],
+
+  blocked:[]
+
+ };
 
 
-    localStorage.setItem(
-        "mym_users",
-        JSON.stringify(users)
-    );
+ users.push(user);
+
+ saveUsers();
 
 
-    currentUser = newUser;
+ currentUser=user;
+
+ localStorage.setItem(
+ "mym_current_user",
+ JSON.stringify(user)
+ );
 
 
-    localStorage.setItem(
-        "mym_current_user",
-        JSON.stringify(currentUser)
-    );
-
-
-    closeAuth();
-
-    showLoggedUser();
-
-    alert("Hesabın oluşturuldu!");
-
+ enterApp();
 
 }
 
 
-/* GİRİŞ YAP */
+/* GİRİŞ */
 
 function login(){
 
-    const email =
-        document.getElementById("loginEmail").value.trim();
+ const email=
+ document.getElementById("loginEmail").value.trim();
 
-    const password =
-        document.getElementById("loginPassword").value;
+ const password=
+ document.getElementById("loginPassword").value;
 
-    const message =
-        document.getElementById("loginMessage");
-
-
-    message.textContent = "";
+ const msg=
+ document.getElementById("loginMessage");
 
 
-    let users =
-        JSON.parse(localStorage.getItem("mym_users") || "[]");
+ const user=
+ users.find(
+ u=>u.email===email&&u.password===password
+ );
 
 
-    const user =
-        users.find(
-            u =>
-            u.email === email &&
-            u.password === password
-        );
+ if(!user){
+
+  msg.textContent="E-posta veya şifre yanlış.";
+
+  return;
+
+ }
 
 
-    if(!user){
+ currentUser=user;
 
-        message.textContent =
-            "E-posta veya şifre yanlış.";
+ localStorage.setItem(
+ "mym_current_user",
+ JSON.stringify(user)
+ );
 
-        return;
-    }
-
-
-    currentUser = user;
-
-
-    localStorage.setItem(
-        "mym_current_user",
-        JSON.stringify(user)
-    );
-
-
-    closeAuth();
-
-    showLoggedUser();
+ enterApp();
 
 }
 
 
-/* KULLANICI GİRİŞ YAPINCA */
+/* =====================================================
+   UYGULAMAYA GİR
+===================================================== */
 
-function showLoggedUser(){
+function enterApp(){
 
-    const accountBtn =
-        document.getElementById("accountBtn");
+ document.getElementById("authPage")
+ .style.display="none";
 
-    const profile =
-        document.getElementById("profile");
-
-    const profileName =
-        document.getElementById("profileName");
-
-    const userStatus =
-        document.getElementById("userStatus");
-
-    const avatar =
-        document.getElementById("avatar");
+ document.getElementById("app")
+ .classList.add("active");
 
 
-    accountBtn.textContent =
-        currentUser.name;
+ updateProfile();
 
+ renderFeed();
 
-    profileName.textContent =
-        currentUser.name;
-
-
-    userStatus.textContent =
-        currentUser.role +
-        " • " +
-        currentUser.email;
-
-
-    avatar.textContent =
-        currentUser.name
-            .charAt(0)
-            .toUpperCase();
-
-
-    profile.classList.add("show");
+ renderReels();
 
 }
 
 
-/* ÇIKIŞ */
+/* =====================================================
+   ANA SAYFA
+===================================================== */
+
+function showPage(page){
+
+ document.getElementById("homePage")
+ .classList.add("hidden");
+
+ document.getElementById("reelsPage")
+ .classList.add("hidden");
+
+ document.getElementById("chatPage")
+ .classList.add("hidden");
+
+ document.getElementById("profilePage")
+ .classList.remove("active");
+
+ document.getElementById("settingsPage")
+ .classList.remove("active");
+
+
+ document.querySelectorAll(".bottom-nav button")
+ .forEach(b=>b.classList.remove("active"));
+
+
+ if(page==="home"){
+
+  document.getElementById("homePage")
+  .classList.remove("hidden");
+
+  document.getElementById("homeBtn")
+  .classList.add("active");
+
+ }
+
+
+ if(page==="reels"){
+
+  document.getElementById("reelsPage")
+  .classList.remove("hidden");
+
+  document.getElementById("reelsBtn")
+  .classList.add("active");
+
+ }
+
+
+ if(page==="chat"){
+
+  document.getElementById("chatPage")
+  .classList.remove("hidden");
+
+  document.getElementById("chatBtn")
+  .classList.add("active");
+
+ }
+
+
+ if(page==="profile"){
+
+  document.getElementById("profilePage")
+  .classList.add("active");
+
+  document.getElementById("profileBtn")
+  .classList.add("active");
+
+  renderMyPosts();
+
+ }
+
+}
+
+
+/* =====================================================
+   POST / METİN
+===================================================== */
+
+function createPost(){
+
+ const input=
+ document.getElementById("newText");
+
+ const text=input.value.trim();
+
+ if(!text)return;
+
+
+ const post={
+
+  id:Date.now(),
+
+  userId:currentUser.id,
+
+  userName:currentUser.name,
+
+  role:currentUser.role,
+
+  text,
+
+  likes:0,
+
+  comments:0,
+
+  createdAt:new Date().toISOString()
+
+ };
+
+
+ posts.unshift(post);
+
+ currentUser.writtenTexts=
+ currentUser.writtenTexts||[];
+
+ currentUser.writtenTexts.push(post.id);
+
+ saveUsers();
+
+ savePosts();
+
+ input.value="";
+
+ renderFeed();
+
+ renderMyPosts();
+
+}
+
+
+/* =====================================================
+   AKIŞ
+===================================================== */
+
+function renderFeed(){
+
+ const feed=
+ document.getElementById("feed");
+
+ if(!posts.length){
+
+  feed.innerHTML=
+  `<div class="post">
+  <p style="color:#888">
+  Henüz içerik yok. İlk paylaşımı sen yap!
+  </p>
+  </div>`;
+
+  return;
+
+ }
+
+
+ /*
+    İçerikleri rastgele karıştırıyoruz.
+ */
+
+ const shuffled=[...posts]
+ .sort(()=>Math.random()-.5);
+
+
+ feed.innerHTML=
+ shuffled.map(createPostHTML).join("");
+
+}
+
+
+function createPostHTML(post){
+
+ const liked=
+ currentUser.likedPosts?.includes(post.id);
+
+
+ return `
+
+ <article class="post">
+
+ <div class="post-head">
+
+ <div class="avatar">
+ ${escapeHTML(post.userName.charAt(0).toUpperCase())}
+ </div>
+
+ <div>
+ <div class="post-user">
+ ${escapeHTML(post.userName)}
+ </div>
+
+ <div class="post-role">
+ ${escapeHTML(post.role)}
+ </div>
+ </div>
+
+ </div>
+
+ <div class="post-content">
+ ${escapeHTML(post.text)}
+ </div>
+
+ <div class="post-actions">
+
+ <button class="action ${liked?"liked":""}"
+ onclick="likePost(${post.id})">
+
+ ${liked?"♥":"♡"} ${post.likes}
+
+ </button>
+
+ <button class="action">
+ 💬 ${post.comments}
+ </button>
+
+ ${post.userId===currentUser.id?
+ `<button class="action"
+ onclick="deletePost(${post.id})">
+ 🗑️
+ </button>`:""}
+
+ </div>
+
+ </article>
+
+ `;
+
+}
+
+
+/* =====================================================
+   BEĞENİ
+===================================================== */
+
+function likePost(id){
+
+ const post=
+ posts.find(p=>p.id===id);
+
+ if(!post)return;
+
+
+ currentUser.likedPosts=
+ currentUser.likedPosts||[];
+
+
+ const index=
+ currentUser.likedPosts.indexOf(id);
+
+
+ if(index===-1){
+
+  currentUser.likedPosts.push(id);
+
+  post.likes++;
+
+ }else{
+
+  currentUser.likedPosts.splice(index,1);
+
+  post.likes--;
+
+ }
+
+
+ saveUsers();
+
+ savePosts();
+
+ renderFeed();
+
+}
+
+
+/* =====================================================
+   SİL / ARŞİV
+===================================================== */
+
+function deletePost(id){
+
+ const index=
+ posts.findIndex(p=>p.id===id);
+
+ if(index===-1)return;
+
+
+ const post=posts[index];
+
+
+ if(post.userId!==currentUser.id)return;
+
+
+ posts.splice(index,1);
+
+
+ archive.push({
+
+  ...post,
+
+  deletedType:"metin",
+
+  deletedAt:new Date().toISOString()
+
+ });
+
+
+ savePosts();
+
+ saveArchive();
+
+ renderFeed();
+
+ renderMyPosts();
+
+}
+
+
+/* =====================================================
+   PROFİL
+===================================================== */
+
+function updateProfile(){
+
+ if(!currentUser)return;
+
+
+ document.getElementById("profileName")
+ .textContent=currentUser.name;
+
+ document.getElementById("profileRole")
+ .textContent=
+ currentUser.role+
+ (currentUser.bio?" • "+currentUser.bio:"");
+
+
+ document.getElementById("profileAvatar")
+ .textContent=
+ currentUser.name
+ .charAt(0)
+ .toUpperCase();
+
+
+ const count=
+ posts.filter(p=>p.userId===currentUser.id).length;
+
+ document.getElementById("postCount")
+ .textContent=count;
+
+}
+
+
+function renderMyPosts(){
+
+ const box=
+ document.getElementById("myPosts");
+
+ const mine=
+ posts.filter(
+ p=>p.userId===currentUser.id
+ );
+
+
+ if(!mine.length){
+
+  box.innerHTML=
+  `<div class="post">
+  <p style="color:#777">
+  Henüz paylaşım yapmadın.
+  </p>
+  </div>`;
+
+  return;
+
+ }
+
+
+ box.innerHTML=
+ mine.map(createPostHTML).join("");
+
+}
+
+
+/* PROFİL DÜZENLE */
+
+function editProfile(){
+
+ document.getElementById("editName")
+ .value=currentUser.name;
+
+ document.getElementById("editBio")
+ .value=currentUser.bio||"";
+
+
+ document.getElementById("profileModal")
+ .classList.add("active");
+
+}
+
+
+function saveProfile(){
+
+ const name=
+ document.getElementById("editName")
+ .value.trim();
+
+ const bio=
+ document.getElementById("editBio")
+ .value.trim();
+
+
+ if(!name)return;
+
+
+ currentUser.name=name;
+
+ currentUser.bio=bio;
+
+
+ const index=
+ users.findIndex(
+ u=>u.id===currentUser.id
+ );
+
+
+ if(index!==-1){
+
+  users[index]=currentUser;
+
+ }
+
+
+ /*
+   Eski gönderilerde de kullanıcı adı güncelleniyor.
+ */
+
+ posts.forEach(p=>{
+
+  if(p.userId===currentUser.id){
+
+   p.userName=currentUser.name;
+
+  }
+
+ });
+
+
+ saveUsers();
+
+ savePosts();
+
+
+ localStorage.setItem(
+ "mym_current_user",
+ JSON.stringify(currentUser)
+ );
+
+
+ updateProfile();
+
+ renderFeed();
+
+ renderMyPosts();
+
+ closeModal("profileModal");
+
+}
+
+
+/* =====================================================
+   REELS
+===================================================== */
+
+function renderReels(){
+
+ const box=
+ document.getElementById("reels");
+
+
+ if(!reels.length){
+
+  box.innerHTML=
+  `<div class="reel">
+  <div style="text-align:center">
+  <div class="reel-placeholder">🎬</div>
+  <p style="color:#888">
+  Henüz Reels yok.
+  </p>
+  </div>
+  </div>`;
+
+  return;
+
+ }
+
+
+ const shuffled=[...reels]
+ .sort(()=>Math.random()-.5);
+
+
+ box.innerHTML=
+ shuffled.map(r=>`
+
+ <div class="reel">
+
+ <div class="reel-placeholder">
+ 🎬
+ </div>
+
+ <div class="reel-info">
+
+ <b>${escapeHTML(r.userName)}</b>
+
+ <p style="color:#ccc;margin-top:5px">
+ ${escapeHTML(r.text||"Reels videosu")}
+ </p>
+
+ </div>
+
+ </div>
+
+ `).join("");
+
+}
+
+
+/* =====================================================
+   SOHBET
+===================================================== */
+
+function startChat(){
+
+ alert(
+ "Sohbet sistemi hazır. Gerçek kullanıcılar arasında mesajlaşma için sonraki aşamada ortak veritabanı bağlanacak."
+ );
+
+}
+
+
+/* =====================================================
+   AYARLAR
+===================================================== */
+
+function openSettings(){
+
+ document.getElementById("moreMenu")
+ .classList.remove("active");
+
+ document.getElementById("homePage")
+ .classList.add("hidden");
+
+ document.getElementById("reelsPage")
+ .classList.add("hidden");
+
+ document.getElementById("chatPage")
+ .classList.add("hidden");
+
+ document.getElementById("profilePage")
+ .classList.remove("active");
+
+ document.getElementById("settingsPage")
+ .classList.add("active");
+
+}
+
+
+function showActivity(){
+
+ const box=
+ document.getElementById("activityContent");
+
+
+ box.innerHTML=`
+
+ <div class="setting-card">
+ 👥 Engellediğim kişiler:
+ <b>${currentUser.blocked?.length||0}</b>
+ </div>
+
+ <div class="setting-card">
+ ❤️ Beğendiğim metinler:
+ <b>${currentUser.likedPosts?.length||0}</b>
+ </div>
+
+ <div class="setting-card">
+ 🎬 Beğendiğim Reels:
+ <b>${currentUser.likedReels?.length||0}</b>
+ </div>
+
+ <div class="setting-card">
+ 🎵 Beğendiğim şarkılar:
+ <b>${currentUser.likedSongs?.length||0}</b>
+ </div>
+
+ <div class="setting-card">
+ 📝 Yazdığım metinler:
+ <b>${currentUser.writtenTexts?.length||0}</b>
+ </div>
+
+ <div class="setting-card">
+ 💬 Attığım yorumlar:
+ <b>${currentUser.comments?.length||0}</b>
+ </div>
+
+ `;
+
+
+ document.getElementById("activityModal")
+ .classList.add("active");
+
+}
+
+
+function showArchive(){
+
+ const box=
+ document.getElementById("archiveContent");
+
+
+ const mine=
+ archive.filter(
+ a=>a.userId===currentUser.id
+ );
+
+
+ if(!mine.length){
+
+  box.innerHTML=
+  `<p style="color:#777">
+  Arşiv boş.
+  </p>`;
+
+ }else{
+
+  box.innerHTML=
+  mine.map(a=>`
+
+  <div class="setting-card">
+
+  <b>🗑️ ${escapeHTML(a.deletedType)}</b>
+
+  <p style="margin-top:8px">
+  ${escapeHTML(a.text||"İçerik")}
+  </p>
+
+  </div>
+
+  `).join("");
+
+ }
+
+
+ document.getElementById("archiveModal")
+ .classList.add("active");
+
+}
+
+
+/* =====================================================
+   TEMA
+===================================================== */
+
+function changeTheme(color){
+
+ document.documentElement
+ .style.setProperty("--theme",color);
+
+ localStorage.setItem(
+ "mym_theme",
+ color
+ );
+
+}
+
+
+const savedTheme=
+ localStorage.getItem("mym_theme");
+
+if(savedTheme){
+
+ changeTheme(savedTheme);
+
+}
+
+
+/* =====================================================
+   ÜÇ NOKTA
+===================================================== */
+
+function toggleMenu(){
+
+ document.getElementById("moreMenu")
+ .classList.toggle("active");
+
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+function closeModal(id){
+
+ document.getElementById(id)
+ .classList.remove("active");
+
+}
+
+
+/* =====================================================
+   ÇIKIŞ
+===================================================== */
 
 function logout(){
 
-    currentUser = null;
+ currentUser=null;
 
-    localStorage.removeItem(
-        "mym_current_user"
-    );
+ localStorage.removeItem(
+ "mym_current_user"
+ );
 
+ document.getElementById("app")
+ .classList.remove("active");
 
-    document.getElementById("accountBtn")
-        .textContent = "Giriş Yap";
+ document.getElementById("authPage")
+ .style.display="flex";
 
-
-    document.getElementById("profile")
-        .classList.remove("show");
-
-
-    alert("Çıkış yapıldı.");
+ showAuth("login");
 
 }
 
 
-/* GİRİŞ PENCERESİ */
+/* =====================================================
+   KAYDET
+===================================================== */
 
-function openAuth(){
+function saveUsers(){
 
-    document
-        .getElementById("authModal")
-        .classList.add("show");
+ localStorage.setItem(
+ "mym_users",
+ JSON.stringify(users)
+ );
+
+}
+
+function savePosts(){
+
+ localStorage.setItem(
+ "mym_posts",
+ JSON.stringify(posts)
+ );
+
+}
+
+function saveArchive(){
+
+ localStorage.setItem(
+ "mym_archive",
+ JSON.stringify(archive)
+ );
 
 }
 
 
-/* PENCEREYİ KAPAT */
+/* =====================================================
+   GÜVENLİ METİN
+===================================================== */
 
-function closeAuth(){
+function escapeHTML(text){
 
-    document
-        .getElementById("authModal")
-        .classList.remove("show");
-
-}
-
-
-/* KAYIT / GİRİŞ SEÇİMİ */
-
-function showForm(type){
-
-    const registerForm =
-        document.getElementById("registerForm");
-
-    const loginForm =
-        document.getElementById("loginForm");
-
-    const registerTab =
-        document.getElementById("registerTab");
-
-    const loginTab =
-        document.getElementById("loginTab");
-
-
-    if(type === "register"){
-
-        registerForm.classList.add("active");
-
-        loginForm.classList.remove("active");
-
-        registerTab.classList.add("active");
-
-        loginTab.classList.remove("active");
-
-    }else{
-
-        loginForm.classList.add("active");
-
-        registerForm.classList.remove("active");
-
-        loginTab.classList.add("active");
-
-        registerTab.classList.remove("active");
-
-    }
+ return String(text)
+ .replaceAll("&","&amp;")
+ .replaceAll("<","&lt;")
+ .replaceAll(">","&gt;")
+ .replaceAll('"',"&quot;")
+ .replaceAll("'","&#039;");
 
 }
-
-
-/* MÜZİKLERE KAYDIR */
-
-function scrollToMusic(){
-
-    document
-        .getElementById("musicSection")
-        .scrollIntoView({
-            behavior:"smooth"
-        });
-
-}
-
-
-/* BEĞENİ */
-
-function likeSong(button){
-
-    let count =
-        parseInt(
-            button.textContent
-                .replace("♡","")
-                .replace("♥","")
-                .trim()
-        ) || 0;
-
-
-    if(button.classList.contains("active")){
-
-        count--;
-
-        button.classList.remove("active");
-
-        button.textContent =
-            "♡ " + count;
-
-    }else{
-
-        count++;
-
-        button.classList.add("active");
-
-        button.textContent =
-            "♥ " + count;
-
-    }
-
-}
-
-
-/* MODAL DIŞINA TIKLANIRSA KAPAT */
-
-document
-    .getElementById("authModal")
-    .addEventListener("click", function(e){
-
-        if(e.target === this){
-
-            closeAuth();
-
-        }
-
-    });
 
 </script>
 
