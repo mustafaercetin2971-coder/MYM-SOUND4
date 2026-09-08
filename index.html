@@ -1,294 +1,966 @@
-from pathlib import Path
-import zipfile, textwrap, json
-
-root = Path("/mnt/data/mymsound_real")
-root.mkdir(parents=True, exist_ok=True)
-
-index_html = r'''<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MYMSOUND</title>
+
 <style>
-:root{--main:#8b5cf6;--main2:#6d28d9;--bg:#080808;--card:#121212;--text:#fff;--muted:#999}
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
-button,input,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
-header{height:70px;background:#0d0d0d;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:10}
-.logo{font-weight:900;font-size:24px;color:var(--main);letter-spacing:2px}nav{display:flex;gap:8px;flex-wrap:wrap}nav button,.ghost{background:transparent;border:0;color:#bbb;padding:9px 11px;border-radius:9px}nav button:hover,.ghost:hover{background:#202020;color:#fff}
-main{max-width:1200px;margin:auto;padding:28px 18px 90px}.page{display:none}.page.active{display:block}
-.auth{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at top,#251044,#080808 58%)}
-.box{width:min(440px,100%);background:#111;border:1px solid #292929;border-radius:22px;padding:30px;box-shadow:0 20px 70px #000}
-.logoBig{text-align:center;font-size:36px;font-weight:900;color:var(--main);margin-bottom:8px}.muted{color:var(--muted)}
-.input,textarea{width:100%;padding:13px;margin:7px 0;background:#191919;border:1px solid #333;color:#fff;border-radius:10px;outline:0}.input:focus,textarea:focus{border-color:var(--main)}
-.primary{width:100%;padding:13px;border:0;border-radius:10px;background:var(--main);color:#fff;font-weight:bold;margin-top:8px}.primary:hover{background:var(--main2)}
-.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.role{background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:13px;text-align:center;color:#aaa}.role.selected{border-color:var(--main);color:#fff;background:#251640}
-.hero,.card,.post,.panel{background:var(--card);border:1px solid #292929;border-radius:18px;padding:20px;margin-bottom:15px}.hero{padding:36px;background:linear-gradient(135deg,#191020,#0e0e0e)}h1{margin-top:0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.tag{display:inline-block;padding:5px 9px;border-radius:20px;background:#26183e;color:#c8b0ff;font-size:12px;margin-top:10px}
-.post-head{display:flex;gap:10px;align-items:center}.avatar{width:40px;height:40px;border-radius:50%;background:var(--main);display:grid;place-items:center;font-weight:bold}.actions{display:flex;gap:8px;margin-top:12px}.action{background:#202020;border:0;color:#bbb;border-radius:9px;padding:8px 11px}.action:hover{color:#fff}
-.create{position:fixed;right:22px;bottom:22px;width:58px;height:58px;border:0;border-radius:50%;background:var(--main);color:#fff;font-size:28px;z-index:20}.menu{position:fixed;right:22px;bottom:88px;width:220px;background:#151515;border:1px solid #333;border-radius:14px;padding:8px;z-index:20}.menu button{display:block;width:100%;text-align:left;background:transparent;border:0;color:#fff;padding:12px;border-radius:8px}.menu button:hover{background:#262626}
-.modalbg{position:fixed;inset:0;background:#000b;display:grid;place-items:center;padding:18px;z-index:30}.modal{width:min(520px,100%);background:#121212;border:1px solid #333;border-radius:18px;padding:22px}
-.close{float:right;background:none;border:0;color:#aaa;font-size:24px}.file{display:block;padding:13px;border:1px dashed #444;border-radius:10px;margin:8px 0;color:#aaa}.file input{display:block;margin-top:8px;max-width:100%}
-.profile{display:flex;gap:18px;align-items:center}.big{width:88px;height:88px;border-radius:50%;background:var(--main);display:grid;place-items:center;font-size:34px;font-weight:bold}
-.chat{display:grid;grid-template-columns:260px 1fr;min-height:520px;background:var(--card);border:1px solid #292929;border-radius:18px;overflow:hidden}.users{border-right:1px solid #292929}.userRow{padding:14px;border-bottom:1px solid #222;cursor:pointer}.userRow:hover{background:#1d1d1d}.chatMain{display:flex;flex-direction:column}.chatTop{padding:15px;border-bottom:1px solid #292929}.chatBody{flex:1;padding:18px;overflow:auto}.bubble{display:table;background:var(--main);padding:9px 13px;border-radius:15px;margin:7px 0}.bubble.mine{margin-left:auto}.chatInput{display:flex;gap:8px;padding:12px;border-top:1px solid #292929}.chatInput input{flex:1;background:#191919;border:1px solid #333;color:#fff;border-radius:10px;padding:11px}
-video,audio{max-width:100%;width:100%;margin-top:10px;border-radius:12px}.shortGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.shortCard{background:#111;border:1px solid #292929;border-radius:16px;padding:12px}.shortCard video{aspect-ratio:9/16;object-fit:cover}
-.toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);background:#222;border:1px solid #444;padding:10px 15px;border-radius:10px;z-index:50}
-@media(max-width:850px){nav{display:none}.grid,.shortGrid{grid-template-columns:1fr 1fr}.chat{grid-template-columns:1fr}.users{border-right:0;border-bottom:1px solid #292929;max-height:180px;overflow:auto}}
-@media(max-width:520px){.grid,.shortGrid{grid-template-columns:1fr}.profile{align-items:flex-start;flex-wrap:wrap}}
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:#080808;
+    color:white;
+    min-height:100vh;
+}
+
+button,input,select{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.navbar{
+    height:70px;
+    padding:0 30px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:#0e0e0e;
+    border-bottom:1px solid #242424;
+    position:sticky;
+    top:0;
+    z-index:10;
+}
+
+.logo{
+    font-size:25px;
+    font-weight:900;
+    color:#9b5cff;
+}
+
+.nav-buttons{
+    display:flex;
+    gap:10px;
+}
+
+.nav-buttons button,
+.primary{
+    border:0;
+    border-radius:10px;
+    padding:11px 18px;
+    background:#8b5cf6;
+    color:white;
+    font-weight:bold;
+}
+
+.nav-buttons button:hover,
+.primary:hover{
+    background:#a77aff;
+}
+
+.secondary{
+    background:#1b1b1b !important;
+    border:1px solid #333 !important;
+}
+
+.container{
+    width:min(1100px,92%);
+    margin:40px auto;
+}
+
+.hero{
+    min-height:430px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:
+      radial-gradient(circle at center,#321467 0,#150b24 35%,#080808 70%);
+    border-radius:25px;
+    padding:50px 20px;
+}
+
+.hero h1{
+    font-size:clamp(45px,8vw,90px);
+    margin-bottom:15px;
+}
+
+.hero h1 span{
+    color:#9b5cff;
+}
+
+.hero p{
+    color:#bbb;
+    font-size:18px;
+    margin-bottom:30px;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+    margin-top:25px;
+}
+
+.card{
+    background:#111;
+    border:1px solid #242424;
+    border-radius:18px;
+    padding:25px;
+}
+
+.card h2{
+    color:#a875ff;
+    margin-bottom:10px;
+}
+
+.card p{
+    color:#999;
+    line-height:1.5;
+}
+
+.section{
+    margin-top:35px;
+}
+
+.section h2{
+    margin-bottom:18px;
+}
+
+.music{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    background:#111;
+    border:1px solid #242424;
+    padding:16px;
+    border-radius:15px;
+    margin-bottom:10px;
+}
+
+.music-cover{
+    width:55px;
+    height:55px;
+    border-radius:10px;
+    background:linear-gradient(135deg,#8b5cf6,#24103d);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:23px;
+}
+
+.music-info{
+    flex:1;
+}
+
+.music-info b{
+    display:block;
+    margin-bottom:5px;
+}
+
+.music-info span{
+    color:#888;
+    font-size:14px;
+}
+
+.like{
+    border:0;
+    background:#1d1d1d;
+    color:white;
+    padding:9px 13px;
+    border-radius:10px;
+}
+
+.like.active{
+    color:#ff4f91;
+}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.78);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:20px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:min(430px,100%);
+    background:#111;
+    border:1px solid #333;
+    border-radius:20px;
+    padding:28px;
+    box-shadow:0 20px 70px rgba(0,0,0,.6);
+}
+
+.modal-box h2{
+    margin-bottom:20px;
+}
+
+.tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:20px;
+}
+
+.tabs button{
+    flex:1;
+    padding:11px;
+    border:0;
+    border-radius:10px;
+    background:#1c1c1c;
+    color:#aaa;
+}
+
+.tabs button.active{
+    background:#8b5cf6;
+    color:white;
+}
+
+.form{
+    display:none;
+}
+
+.form.active{
+    display:block;
+}
+
+.input{
+    width:100%;
+    background:#090909;
+    border:1px solid #303030;
+    color:white;
+    padding:13px;
+    border-radius:10px;
+    margin-bottom:12px;
+    outline:none;
+}
+
+.input:focus{
+    border-color:#8b5cf6;
+}
+
+.form button{
+    width:100%;
+    margin-top:5px;
+}
+
+.close{
+    float:right;
+    background:none;
+    border:0;
+    color:#aaa;
+    font-size:24px;
+}
+
+.message{
+    min-height:22px;
+    margin:10px 0;
+    color:#ff6b9d;
+    font-size:14px;
+}
+
+.profile{
+    display:none;
+    background:#111;
+    border:1px solid #282828;
+    border-radius:20px;
+    padding:30px;
+    margin-top:30px;
+}
+
+.profile.show{
+    display:block;
+}
+
+.avatar{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    background:#8b5cf6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+#userStatus{
+    color:#aaa;
+    font-size:14px;
+}
+
+footer{
+    margin-top:60px;
+    padding:30px;
+    text-align:center;
+    color:#666;
+    border-top:1px solid #1c1c1c;
+}
+
+@media(max-width:750px){
+    .navbar{
+        padding:0 15px;
+    }
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+    .logo{
+        font-size:20px;
+    }
+
+    .nav-buttons button{
+        padding:9px 11px;
+        font-size:13px;
+    }
+
+    .hero{
+        min-height:350px;
+    }
+}
 </style>
 </head>
+
 <body>
 
-<section id="auth" class="auth">
-<div class="box">
-<div class="logoBig">MYMSOUND</div>
-<p class="muted" style="text-align:center">Müzik topluluğuna katıl</p>
-<div style="display:flex;gap:8px;margin:18px 0">
-<button id="tabRegister" class="primary" style="margin:0" onclick="setAuthMode('register')">Kayıt Ol</button>
-<button id="tabLogin" class="ghost" onclick="setAuthMode('login')">Giriş Yap</button>
-</div>
-<div id="registerFields">
-<input id="nickname" class="input" placeholder="Mahlas">
-<div class="roles">
-<div class="role" onclick="pickRole(this,'REPÇİ')">🎤<br>REPÇİ</div>
-<div class="role" onclick="pickRole(this,'DJ')">🎧<br>DJ</div>
-<div class="role" onclick="pickRole(this,'PROD')">🎛️<br>PROD</div>
-</div>
-</div>
-<input id="email" class="input" type="email" placeholder="E-posta">
-<input id="password" class="input" type="password" placeholder="Şifre (en az 6 karakter)">
-<button id="authButton" class="primary" onclick="submitAuth()">Kayıt Ol</button>
-<p id="authMsg" class="muted" style="font-size:13px"></p>
-</div>
-</section>
+<header class="navbar">
+    <div class="logo">MYMSOUND</div>
 
-<div id="app" class="hidden">
-<header><div class="logo">MYMSOUND</div>
-<nav>
-<button onclick="showPage('home')">Ana Sayfa</button><button onclick="showPage('explore')">Keşfet</button>
-<button onclick="showPage('shorts')">Shorts</button><button onclick="showPage('messages')">Mesajlar</button>
-<button onclick="showPage('profile')">Profil</button><button onclick="showPage('settings')">Ayarlar</button>
-</nav>
-<div id="miniUser" class="muted"></div></header>
+    <div class="nav-buttons">
+        <button class="secondary" onclick="scrollToMusic()">Müzikler</button>
+        <button id="accountBtn" onclick="openAuth()">Giriş Yap</button>
+    </div>
+</header>
 
-<main>
-<section id="home" class="page active">
-<div class="hero"><h1>MYM<span style="color:var(--main)">SOUND</span></h1><p id="welcome" class="muted">Müzik dünyasına hoş geldin.</p></div>
-<h2>Topluluk Akışı</h2><div id="feed"></div>
-</section>
 
-<section id="explore" class="page"><h1>Keşfet</h1><p class="muted">MYMSOUND kullanıcılarını keşfet.</p><div id="exploreGrid" class="grid" style="margin-top:18px"></div></section>
+<main class="container">
 
-<section id="shorts" class="page"><h1>Shorts</h1><p class="muted">Topluluğun kısa videoları.</p><div id="shortGrid" class="shortGrid" style="margin-top:18px"></div></section>
+    <section class="hero">
+        <div>
+            <h1>MYM<span>SOUND</span></h1>
 
-<section id="messages" class="page"><h1>Mesajlar</h1><div class="chat">
-<div id="userList" class="users"></div>
-<div class="chatMain"><div id="chatTop" class="chatTop">Bir kullanıcı seç</div><div id="chatBody" class="chatBody"></div>
-<div class="chatInput"><input id="msgInput" placeholder="Mesaj yaz..." onkeydown="if(event.key==='Enter')sendMsg()"><button class="primary" style="width:auto;margin:0" onclick="sendMsg()">Gönder</button></div></div>
-</div></section>
+            <p>
+                Müzik üreticileri, rapçiler, DJ'ler ve prodüktörler için.
+            </p>
 
-<section id="profile" class="page"><div class="panel profile"><div id="bigAvatar" class="big">M</div><div><h2 id="profileName">Kullanıcı</h2><p id="profileRole" class="muted"></p><p id="profileEmail" class="muted"></p></div></div>
-<h2>Paylaşımlarım</h2><div id="myPosts"></div></section>
+            <button class="primary" onclick="openAuth()">
+                Hesap Oluştur
+            </button>
+        </div>
+    </section>
 
-<section id="settings" class="page"><h1>Ayarlar</h1><div class="panel">
-<input id="newName" class="input" placeholder="Yeni mahlas"><button class="primary" onclick="updateName()">Mahlası Güncelle</button>
-<hr style="border-color:#292929;margin:22px 0"><h3>Ana Renk</h3><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-<button class="action" onclick="setColor('#8b5cf6')">Mor</button><button class="action" onclick="setColor('#ef4444')">Kırmızı</button><button class="action" onclick="setColor('#2563eb')">Mavi</button><button class="action" onclick="setColor('#eab308')">Sarı</button></div>
-<hr style="border-color:#292929;margin:22px 0"><button class="action" onclick="logout()">🚪 Çıkış Yap</button></div></section>
+
+    <section class="cards">
+
+        <div class="card">
+            <h2>🎤 Rapçiler</h2>
+            <p>
+                Mahlasınla profil oluştur ve müziklerini paylaş.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>🎧 DJ'ler</h2>
+            <p>
+                Kendi içeriklerini ve çalışmalarını topluluğa göster.
+            </p>
+        </div>
+
+        <div class="card">
+            <h2>🎹 Prodüktörler</h2>
+            <p>
+                Beat ve prodüksiyon çalışmalarını sergile.
+            </p>
+        </div>
+
+    </section>
+
+
+    <section class="section" id="musicSection">
+
+        <h2>🔥 Örnek Müzikler</h2>
+
+        <div class="music">
+            <div class="music-cover">🎵</div>
+
+            <div class="music-info">
+                <b>Gece</b>
+                <span>MYMSOUND Artist</span>
+            </div>
+
+            <button class="like" onclick="likeSong(this)">
+                ♡ 0
+            </button>
+        </div>
+
+
+        <div class="music">
+            <div class="music-cover">🎧</div>
+
+            <div class="music-info">
+                <b>Sokaklar</b>
+                <span>MYMSOUND Artist</span>
+            </div>
+
+            <button class="like" onclick="likeSong(this)">
+                ♡ 0
+            </button>
+        </div>
+
+
+        <div class="music">
+            <div class="music-cover">🔥</div>
+
+            <div class="music-info">
+                <b>Ters Köşe</b>
+                <span>MYMSOUND Artist</span>
+            </div>
+
+            <button class="like" onclick="likeSong(this)">
+                ♡ 0
+            </button>
+        </div>
+
+    </section>
+
+
+    <section class="profile" id="profile">
+
+        <div class="avatar" id="avatar">M</div>
+
+        <h2 id="profileName">Kullanıcı</h2>
+
+        <p id="userStatus"></p>
+
+        <br>
+
+        <button class="primary" onclick="logout()">
+            Çıkış Yap
+        </button>
+
+    </section>
+
 </main>
 
-<button class="create" onclick="document.getElementById('menu').classList.toggle('hidden')">+</button>
-<div id="menu" class="menu hidden"><button onclick="openPublish('song')">🎵 Şarkı yayınla</button><button onclick="openPublish('post')">💬 Topluluk mesajı</button><button onclick="openPublish('short')">📱 Short yayınla</button></div>
+
+<footer>
+    © 2026 MYMSOUND — Music Community
+</footer>
+
+
+<!-- GİRİŞ / KAYIT MODALI -->
+
+<div class="modal" id="authModal">
+
+    <div class="modal-box">
+
+        <button class="close" onclick="closeAuth()">×</button>
+
+        <h2>MYMSOUND</h2>
+
+        <div class="tabs">
+
+            <button
+                id="registerTab"
+                class="active"
+                onclick="showForm('register')">
+                Kayıt Ol
+            </button>
+
+            <button
+                id="loginTab"
+                onclick="showForm('login')">
+                Giriş Yap
+            </button>
+
+        </div>
+
+
+        <!-- KAYIT -->
+
+        <div class="form active" id="registerForm">
+
+            <input
+                class="input"
+                id="registerName"
+                type="text"
+                placeholder="Mahlas / Kullanıcı adı"
+                maxlength="30">
+
+            <select class="input" id="registerRole">
+                <option value="REPÇİ">REPÇİ</option>
+                <option value="DJ">DJ</option>
+                <option value="PROD">PROD</option>
+            </select>
+
+            <input
+                class="input"
+                id="registerEmail"
+                type="email"
+                placeholder="E-posta">
+
+            <input
+                class="input"
+                id="registerPassword"
+                type="password"
+                placeholder="Şifre">
+
+            <input
+                class="input"
+                id="registerPassword2"
+                type="password"
+                placeholder="Şifre tekrar">
+
+            <div class="message" id="registerMessage"></div>
+
+            <button class="primary" onclick="register()">
+                Hesap Oluştur
+            </button>
+
+        </div>
+
+
+        <!-- GİRİŞ -->
+
+        <div class="form" id="loginForm">
+
+            <input
+                class="input"
+                id="loginEmail"
+                type="email"
+                placeholder="E-posta">
+
+            <input
+                class="input"
+                id="loginPassword"
+                type="password"
+                placeholder="Şifre">
+
+            <div class="message" id="loginMessage"></div>
+
+            <button class="primary" onclick="login()">
+                Giriş Yap
+            </button>
+
+        </div>
+
+    </div>
+
 </div>
 
-<div id="modalBg" class="modalbg hidden"><div class="modal"><button class="close" onclick="closeModal()">×</button><h2 id="modalTitle"></h2><div id="modalContent"></div></div></div>
-<div id="toast" class="toast hidden"></div>
 
-<script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,updateProfile} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-import {getFirestore,collection,doc,setDoc,getDoc,addDoc,updateDoc,deleteDoc,query,orderBy,onSnapshot,serverTimestamp,limit,arrayUnion,arrayRemove} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-import {getStorage,ref,uploadBytesResumable,getDownloadURL,deleteObject} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
+<script>
 
-/* Firebase Console > Project settings > Your apps > Web app bölümündeki değerleri buraya koy. */
-const firebaseConfig={
-  apiKey:"YOUR_API_KEY",
-  authDomain:"YOUR_PROJECT.firebaseapp.com",
-  projectId:"YOUR_PROJECT_ID",
-  storageBucket:"YOUR_PROJECT.firebasestorage.app",
-  messagingSenderId:"YOUR_SENDER_ID",
-  appId:"YOUR_APP_ID"
+/*
+    MYMSOUND HESAP SİSTEMİ
+
+    Bu sürüm Firebase kullanmaz.
+    Hesaplar bu tarayıcının localStorage alanında tutulur.
+*/
+
+
+let currentUser = null;
+
+
+/* SAYFA AÇILDIĞINDA KULLANICIYI KONTROL ET */
+
+window.onload = function(){
+
+    const savedUser = localStorage.getItem("mym_current_user");
+
+    if(savedUser){
+
+        currentUser = JSON.parse(savedUser);
+
+        showLoggedUser();
+    }
+
 };
 
-const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),storage=getStorage(app);
-let current=null,role="REPÇİ",authMode="register",selectedUser=null,unsubs=[];
 
-const $=id=>document.getElementById(id);
-const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-function toast(t){$("toast").textContent=t;$("toast").classList.remove("hidden");setTimeout(()=>$("toast").classList.add("hidden"),2600)}
-window.setAuthMode=m=>{authMode=m;$("registerFields").classList.toggle("hidden",m==="login");$("authButton").textContent=m==="register"?"Kayıt Ol":"Giriş Yap";$("tabRegister").classList.toggle("primary",m==="register");$("tabLogin").classList.toggle("primary",m==="login")};
-window.pickRole=(el,r)=>{document.querySelectorAll(".role").forEach(x=>x.classList.remove("selected"));el.classList.add("selected");role=r};
-window.submitAuth=async()=>{try{const email=$("email").value.trim(),pass=$("password").value;if(!email||pass.length<6)throw Error("E-posta ve en az 6 karakterlik şifre gerekli.");if(authMode==="register"){const nick=$("nickname").value.trim();if(!nick||!role)throw Error("Mahlas ve meslek seç.");const c=await createUserWithEmailAndPassword(auth,email,pass);await updateProfile(c.user,{displayName:nick});await setDoc(doc(db,"users",c.user.uid),{uid:c.user.uid,nickname:nick,role,email,createdAt:serverTimestamp(),blocked:[]});}else await signInWithEmailAndPassword(auth,email,pass)}catch(e){$("authMsg").textContent=e.message.replace("Firebase: ","")}};
+/* KAYIT OL */
 
-onAuthStateChanged(auth,async u=>{if(!u){$("auth").classList.remove("hidden");$("app").classList.add("hidden");return}current=u;const snap=await getDoc(doc(db,"users",u.uid));const d=snap.exists()?snap.data():{nickname:u.displayName||"Kullanıcı",role:"REPÇİ"};role=d.role||"REPÇİ";$("auth").classList.add("hidden");$("app").classList.remove("hidden");$("miniUser").textContent=d.nickname;$("welcome").textContent=`Hoş geldin ${d.nickname}. ${role} alanındasın.`;$("profileName").textContent=d.nickname;$("profileRole").textContent=role;$("profileEmail").textContent=u.email;$("bigAvatar").textContent=(d.nickname||"M")[0].toUpperCase();loadFeed();loadUsers();loadShorts();loadMyPosts()});
+function register(){
 
-window.showPage=id=>{document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");window.scrollTo(0,0)};
-window.logout=()=>signOut(auth);
+    const name =
+        document.getElementById("registerName").value.trim();
 
-function listen(name, q, cb){if(unsubs[name])unsubs[name]();unsubs[name]=onSnapshot(q,cb,e=>toast(e.message))}
-const postsQ=query(collection(db,"posts"),orderBy("createdAt","desc"),limit(50));
-function loadFeed(){listen("feed",postsQ,s=>{$("feed").innerHTML="";s.forEach(x=>renderPost(x.id,x.data(),$("feed")))})}
-function renderPost(id,p,parent){const el=document.createElement("article");el.className="post";el.innerHTML=`<div class="post-head"><div class="avatar">${esc((p.nickname||"M")[0].toUpperCase())}</div><div><b>${esc(p.nickname)}</b><br><small class="muted">${esc(p.role||"")} · ${p.createdAt?.toDate?.().toLocaleString("tr-TR")||"şimdi"}</small></div></div><p>${esc(p.text||"")}</p>${p.audioUrl?`<audio controls src="${esc(p.audioUrl)}"></audio>`:""}${p.imageUrl?`<img src="${esc(p.imageUrl)}" style="width:100%;border-radius:12px;margin-top:10px">`:""}<div class="actions"><button class="action" data-like>❤️ ${p.likes?.length||0}</button><button class="action" data-delete>Sil</button></div>`;el.querySelector("[data-like]").onclick=async()=>{const liked=(p.likes||[]).includes(current.uid);await updateDoc(doc(db,"posts",id),{likes:liked?arrayRemove(current.uid):arrayUnion(current.uid)})};el.querySelector("[data-delete]").onclick=async()=>{if(p.uid===current.uid&&confirm("Paylaşımı sil?"))await deleteDoc(doc(db,"posts",id))};parent.appendChild(el)}
-function loadMyPosts(){listen("mine",query(collection(db,"posts"),orderBy("createdAt","desc"),limit(50)),s=>{$("myPosts").innerHTML="";s.forEach(x=>{if(x.data().uid===current.uid)renderPost(x.id,x.data(),$("myPosts"))})})}
+    const role =
+        document.getElementById("registerRole").value;
 
-function loadUsers(){listen("users",query(collection(db,"users"),limit(50)),s=>{$("exploreGrid").innerHTML="";$("userList").innerHTML="";s.forEach(x=>{const u=x.data();if(u.uid===current.uid)return;const card=document.createElement("div");card.className="card";card.innerHTML=`<h3>🎵 ${esc(u.nickname)}</h3><p class="muted">${esc(u.role)}</p><button class="action">Mesaj gönder</button>`;card.querySelector("button").onclick=()=>{selectedUser=u;showPage("messages");$("chatTop").textContent=u.nickname;listenMessages()};$("exploreGrid").appendChild(card);const row=document.createElement("div");row.className="userRow";row.innerHTML=`<b>${esc(u.nickname)}</b><br><small class="muted">${esc(u.role)}</small>`;row.onclick=()=>{selectedUser=u;$("chatTop").textContent=u.nickname;listenMessages()};$("userList").appendChild(row)})})}
+    const email =
+        document.getElementById("registerEmail").value.trim();
 
-function convoId(a,b){return[a,b].sort().join("_")}
-function listenMessages(){if(!selectedUser)return;const q=query(collection(db,"conversations",convoId(current.uid,selectedUser.uid),"messages"),orderBy("createdAt","asc"),limit(100));listen("chat",q,s=>{$("chatBody").innerHTML="";s.forEach(x=>{const m=x.data();const d=document.createElement("div");d.className="bubble"+(m.uid===current.uid?" mine":"");d.textContent=m.text;$("chatBody").appendChild(d)});$("chatBody").scrollTop=$("chatBody").scrollHeight})}
-window.sendMsg=async()=>{const text=$("msgInput").value.trim();if(!text||!selectedUser)return;await addDoc(collection(db,"conversations",convoId(current.uid,selectedUser.uid),"messages"),{uid:current.uid,text,createdAt:serverTimestamp()});$("msgInput").value=""};
+    const password =
+        document.getElementById("registerPassword").value;
 
-window.openPublish=type=>{ $("menu").classList.add("hidden");$("modalBg").classList.remove("hidden");$("modalTitle").textContent=type==="song"?"🎵 Şarkı yayınla":type==="short"?"📱 Short yayınla":"💬 Topluluk mesajı";$("modalContent").innerHTML= type==="post"?`<textarea id="postText" placeholder="Ne düşünüyorsun?"></textarea><button class="primary" onclick="publishPost()">Paylaş</button>`:type==="song"?`<input id="songName" class="input" placeholder="Şarkı adı"><textarea id="songDesc" placeholder="Açıklama"></textarea><label class="file">MP3/WAV<input id="songFile" type="file" accept=".mp3,.wav,audio/mpeg,audio/wav"></label><label class="file">JPG/PNG<input id="songImg" type="file" accept="image/jpeg,image/png"></label><button class="primary" onclick="publishSong()">Yükle ve yayınla</button><p id="uploadStatus" class="muted"></p>`:`<label class="file">MP4/WebM video<input id="shortFile" type="file" accept="video/mp4,video/webm,video/*"></label><textarea id="shortDesc" placeholder="Açıklama"></textarea><button class="primary" onclick="publishShort()">Yükle ve yayınla</button><p id="uploadStatus" class="muted"></p>`};
-window.closeModal=()=>{$("modalBg").classList.add("hidden")};
+    const password2 =
+        document.getElementById("registerPassword2").value;
 
-async function upload(file,path){return new Promise((resolve,reject)=>{const task=uploadBytesResumable(ref(storage,path),file);task.on("state_changed",s=>$("uploadStatus").textContent=`Yükleniyor: ${Math.round(s.bytesTransferred/s.totalBytes*100)}%`,reject,async()=>resolve(await getDownloadURL(task.snapshot.ref)))})}
-window.publishPost=async()=>{const text=$("postText").value.trim();if(!text)return toast("Mesaj yaz.");const d=await getDoc(doc(db,"users",current.uid));await addDoc(collection(db,"posts"),{uid:current.uid,nickname:d.data().nickname,role:d.data().role,text,likes:[],createdAt:serverTimestamp()});closeModal();toast("Paylaşıldı")};
-window.publishSong=async()=>{const name=$("songName").value.trim(),f=$("songFile").files[0],img=$("songImg").files[0];if(!name||!f)return toast("Şarkı adı ve ses dosyası gerekli.");if(!["audio/mpeg","audio/wav","audio/x-wav"].includes(f.type)&&!/\.(mp3|wav)$/i.test(f.name))return toast("Sadece MP3/WAV.");const d=(await getDoc(doc(db,"users",current.uid))).data();const audio=await upload(f,`songs/${current.uid}/${crypto.randomUUID()}-${f.name}`);let imageUrl="";if(img)imageUrl=await upload(img,`images/${current.uid}/${crypto.randomUUID()}-${img.name}`);await addDoc(collection(db,"posts"),{uid:current.uid,nickname:d.nickname,role:d.role,text:`🎵 ${name}${$("songDesc").value.trim()?" — "+$("songDesc").value.trim():""}`,audioUrl:audio,imageUrl,likes:[],createdAt:serverTimestamp()});closeModal();toast("Şarkı yayınlandı")};
-window.publishShort=async()=>{const f=$("shortFile").files[0];if(!f)return toast("Video seç.");if(f.size>150*1024*1024)return toast("Video 150 MB'dan küçük olmalı.");const d=(await getDoc(doc(db,"users",current.uid))).data();const url=await upload(f,`shorts/${current.uid}/${crypto.randomUUID()}-${f.name}`);await addDoc(collection(db,"shorts"),{uid:current.uid,nickname:d.nickname,role:d.role,description:$("shortDesc").value.trim(),videoUrl:url,createdAt:serverTimestamp()});closeModal();toast("Short yayınlandı")};
-function loadShorts(){listen("shorts",query(collection(db,"shorts"),orderBy("createdAt","desc"),limit(30)),s=>{$("shortGrid").innerHTML="";s.forEach(x=>{const p=x.data(),d=document.createElement("div");d.className="shortCard";d.innerHTML=`<video controls playsinline preload="metadata" src="${esc(p.videoUrl)}"></video><b>${esc(p.nickname)}</b><p class="muted">${esc(p.description||"")}</p>`;$("shortGrid").appendChild(d)})})}
-window.updateName=async()=>{const n=$("newName").value.trim();if(!n)return toast("Yeni mahlas yaz.");await updateProfile(current,{displayName:n});await updateDoc(doc(db,"users",current.uid),{nickname:n});$("miniUser").textContent=n;$("profileName").textContent=n;$("bigAvatar").textContent=n[0].toUpperCase();$("newName").value="";toast("Mahlas güncellendi")};
-window.setColor=c=>{document.documentElement.style.setProperty("--main",c);document.documentElement.style.setProperty("--main2",c);localStorage.setItem("mymsoundColor",c)};
-const savedColor=localStorage.getItem("mymsoundColor");if(savedColor)window.setColor(savedColor);
+    const message =
+        document.getElementById("registerMessage");
+
+
+    message.textContent = "";
+
+
+    if(!name || !email || !password){
+
+        message.textContent =
+            "Lütfen bütün alanları doldur.";
+
+        return;
+    }
+
+
+    if(password.length < 6){
+
+        message.textContent =
+            "Şifre en az 6 karakter olmalı.";
+
+        return;
+    }
+
+
+    if(password !== password2){
+
+        message.textContent =
+            "Şifreler aynı değil.";
+
+        return;
+    }
+
+
+    let users =
+        JSON.parse(localStorage.getItem("mym_users") || "[]");
+
+
+    const existing =
+        users.find(user => user.email === email);
+
+
+    if(existing){
+
+        message.textContent =
+            "Bu e-posta zaten kayıtlı.";
+
+        return;
+    }
+
+
+    const newUser = {
+
+        id: Date.now(),
+
+        name: name,
+
+        role: role,
+
+        email: email,
+
+        password: password,
+
+        createdAt: new Date().toISOString()
+
+    };
+
+
+    users.push(newUser);
+
+
+    localStorage.setItem(
+        "mym_users",
+        JSON.stringify(users)
+    );
+
+
+    currentUser = newUser;
+
+
+    localStorage.setItem(
+        "mym_current_user",
+        JSON.stringify(currentUser)
+    );
+
+
+    closeAuth();
+
+    showLoggedUser();
+
+    alert("Hesabın oluşturuldu!");
+
+
+}
+
+
+/* GİRİŞ YAP */
+
+function login(){
+
+    const email =
+        document.getElementById("loginEmail").value.trim();
+
+    const password =
+        document.getElementById("loginPassword").value;
+
+    const message =
+        document.getElementById("loginMessage");
+
+
+    message.textContent = "";
+
+
+    let users =
+        JSON.parse(localStorage.getItem("mym_users") || "[]");
+
+
+    const user =
+        users.find(
+            u =>
+            u.email === email &&
+            u.password === password
+        );
+
+
+    if(!user){
+
+        message.textContent =
+            "E-posta veya şifre yanlış.";
+
+        return;
+    }
+
+
+    currentUser = user;
+
+
+    localStorage.setItem(
+        "mym_current_user",
+        JSON.stringify(user)
+    );
+
+
+    closeAuth();
+
+    showLoggedUser();
+
+}
+
+
+/* KULLANICI GİRİŞ YAPINCA */
+
+function showLoggedUser(){
+
+    const accountBtn =
+        document.getElementById("accountBtn");
+
+    const profile =
+        document.getElementById("profile");
+
+    const profileName =
+        document.getElementById("profileName");
+
+    const userStatus =
+        document.getElementById("userStatus");
+
+    const avatar =
+        document.getElementById("avatar");
+
+
+    accountBtn.textContent =
+        currentUser.name;
+
+
+    profileName.textContent =
+        currentUser.name;
+
+
+    userStatus.textContent =
+        currentUser.role +
+        " • " +
+        currentUser.email;
+
+
+    avatar.textContent =
+        currentUser.name
+            .charAt(0)
+            .toUpperCase();
+
+
+    profile.classList.add("show");
+
+}
+
+
+/* ÇIKIŞ */
+
+function logout(){
+
+    currentUser = null;
+
+    localStorage.removeItem(
+        "mym_current_user"
+    );
+
+
+    document.getElementById("accountBtn")
+        .textContent = "Giriş Yap";
+
+
+    document.getElementById("profile")
+        .classList.remove("show");
+
+
+    alert("Çıkış yapıldı.");
+
+}
+
+
+/* GİRİŞ PENCERESİ */
+
+function openAuth(){
+
+    document
+        .getElementById("authModal")
+        .classList.add("show");
+
+}
+
+
+/* PENCEREYİ KAPAT */
+
+function closeAuth(){
+
+    document
+        .getElementById("authModal")
+        .classList.remove("show");
+
+}
+
+
+/* KAYIT / GİRİŞ SEÇİMİ */
+
+function showForm(type){
+
+    const registerForm =
+        document.getElementById("registerForm");
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+    const registerTab =
+        document.getElementById("registerTab");
+
+    const loginTab =
+        document.getElementById("loginTab");
+
+
+    if(type === "register"){
+
+        registerForm.classList.add("active");
+
+        loginForm.classList.remove("active");
+
+        registerTab.classList.add("active");
+
+        loginTab.classList.remove("active");
+
+    }else{
+
+        loginForm.classList.add("active");
+
+        registerForm.classList.remove("active");
+
+        loginTab.classList.add("active");
+
+        registerTab.classList.remove("active");
+
+    }
+
+}
+
+
+/* MÜZİKLERE KAYDIR */
+
+function scrollToMusic(){
+
+    document
+        .getElementById("musicSection")
+        .scrollIntoView({
+            behavior:"smooth"
+        });
+
+}
+
+
+/* BEĞENİ */
+
+function likeSong(button){
+
+    let count =
+        parseInt(
+            button.textContent
+                .replace("♡","")
+                .replace("♥","")
+                .trim()
+        ) || 0;
+
+
+    if(button.classList.contains("active")){
+
+        count--;
+
+        button.classList.remove("active");
+
+        button.textContent =
+            "♡ " + count;
+
+    }else{
+
+        count++;
+
+        button.classList.add("active");
+
+        button.textContent =
+            "♥ " + count;
+
+    }
+
+}
+
+
+/* MODAL DIŞINA TIKLANIRSA KAPAT */
+
+document
+    .getElementById("authModal")
+    .addEventListener("click", function(e){
+
+        if(e.target === this){
+
+            closeAuth();
+
+        }
+
+    });
+
 </script>
+
 </body>
-</html>'''
-
-firebase_json = r'''{
-  "hosting": {
-    "public": ".",
-    "ignore": ["firebase.json", "firestore.rules", "storage.rules", "README.md"],
-    "rewrites": [{"source": "**", "destination": "/index.html"}]
-  }
-}'''
-
-firestore_rules = r'''rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
-    function me() { return request.auth.uid; }
-
-    match /users/{uid} {
-      allow read: if signedIn();
-      allow create: if signedIn() && me() == uid;
-      allow update: if signedIn() && me() == uid;
-      allow delete: if signedIn() && me() == uid;
-    }
-
-    match /posts/{postId} {
-      allow read: if signedIn();
-      allow create: if signedIn() && request.resource.data.uid == me();
-      allow update: if signedIn() && (
-        resource.data.uid == me() ||
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
-      );
-      allow delete: if signedIn() && resource.data.uid == me();
-    }
-
-    match /shorts/{shortId} {
-      allow read: if signedIn();
-      allow create: if signedIn() && request.resource.data.uid == me();
-      allow update, delete: if signedIn() && resource.data.uid == me();
-    }
-
-    match /conversations/{conversationId}/messages/{messageId} {
-      allow read, create: if signedIn() &&
-        conversationId.matches('.*' + me() + '.*');
-      allow update, delete: if signedIn() &&
-        resource.data.uid == me();
-    }
-  }
-}'''
-
-storage_rules = r'''rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /songs/{uid}/{fileName} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-        && request.auth.uid == uid
-        && request.resource.size < 50 * 1024 * 1024
-        && request.resource.contentType.matches('audio/(mpeg|wav|x-wav)');
-    }
-    match /images/{uid}/{fileName} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-        && request.auth.uid == uid
-        && request.resource.size < 10 * 1024 * 1024
-        && request.resource.contentType.matches('image/(jpeg|png)');
-    }
-    match /shorts/{uid}/{fileName} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-        && request.auth.uid == uid
-        && request.resource.size < 150 * 1024 * 1024
-        && request.resource.contentType.matches('video/(mp4|webm|quicktime)');
-    }const firebaseConfig = {
-  apiKey: "...",
-  authDomain: "...",
-  projectId: "...",
-  storageBucket: "...",
-  messagingSenderId: "...",
-  appId: "..."
-};
-  }
-}'''
-
-readme = r'''# MYMSOUND — gerçek çalışan sürüm
-
-Bu sürüm frontend + Firebase backend kullanır.
-
-## Çalışan özellikler
-- Firebase e-posta/şifre kayıt ve giriş
-- Kullanıcı profili ve rol (REPÇİ/DJ/PROD)
-- Firestore tabanlı gerçek topluluk akışı
-- Gerçek MP3/WAV yükleme ve oynatma
-- Gerçek kısa video yükleme ve oynatma
-- Gerçek kullanıcılar arası Firestore mesajlaşması
-- Gerçek beğeni
-- Paylaşım silme
-- Mahlas güncelleme
-- Renk tercihi
-- Firebase Security Rules
-
-## Kurulum
-
-1. Firebase Console'da yeni bir proje oluştur.
-2. Web App ekle ve sana verilen firebaseConfig değerlerini `index.html` içindeki `firebaseConfig` alanına koy.
-3. Authentication > Sign-in method > Email/Password'u aç.
-4. Firestore Database oluştur.
-5. Storage'ı etkinleştir.
-6. `firestore.rules` içeriğini Firestore Rules'a yapıştır.
-7. `storage.rules` içeriğini Storage Rules'a yapıştır.
-8. Firebase Hosting kullanacaksan Firebase CLI ile bu klasörü deploy et.
-
-Önemli:
-- `firebaseConfig` içindeki web config gizli sunucu şifresi değildir; yine de üretimde Security Rules mutlaka düzgün tutulmalıdır.
-- Cloud Storage için güncel Firebase plan koşullarını kontrol et.
-- Büyük video/ses dosyaları için üretimde boyut, süre, MIME type ve moderasyon kontrolleri eklenmesi önerilir.
-
-Bu proje gerçek bir backend'e bağlanmadan önce `YOUR_...` değerleriyle çalışmaz.
-'''
-
-for name, content in {
-    "index.html": index_html,
-    "firebase.json": firebase_json,
-    "firestore.rules": firestore_rules,
-    "storage.rules": storage_rules,
-    "README.md": readme
-}.items():
-    (root/name).write_text(content, encoding="utf-8")
-
-zip_path = Path("/mnt/data/MYMSOUND_REAL.zip")
-with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
-    for p in root.iterdir():
-        z.write(p, p.name)
-
-print(f"Hazır: {zip_path}")
+</html>
